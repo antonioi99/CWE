@@ -3,211 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Garden of Forking Paths - Story Map</title>
-    <style>
-        body {
-            font-family: 'Georgia', serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f5f5f5;
-        }
-        
-        header {
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            padding: 1rem;
-            text-align: center;
-        }
-        
-        h1 {
-            margin: 0;
-            font-size: 2rem;
-        }
-        
-        .subtitle {
-            font-style: italic;
-            margin-top: 0.5rem;
-        }
-        
-        main {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-        
-        #controls {
-            margin-bottom: 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            align-items: center;
-        }
-        
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #2980b9;
-        }
-        
-        .location-type {
-            display: inline-block;
-            margin-right: 10px;
-        }
-        
-        .location-type-color {
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-        
-        #map-container {
-            background: white;
-            padding: 1rem;
-            border: 1px solid #ddd;
-            overflow: auto;
-            height: 700px;
-        }
-        
-        #node-details {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: white;
-            border: 1px solid #ddd;
-            display: none;
-        }
-        
-        #node-title {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-        
-        #node-content {
-            line-height: 1.6;
-        }
-        
-        #map-legend {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: white;
-            border: 1px solid #ddd;
-        }
-        
-        .legend-title {
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .legend-item {
-            display: inline-block;
-            margin-right: 1rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .legend-color {
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-        
-        .connection-type {
-            display: inline-block;
-            width: 30px;
-            height: 2px;
-            margin-right: 5px;
-            vertical-align: middle;
-        }
-        
-        .path-highlight {
-            margin-top: 1rem;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        
-        .path-button {
-            background-color: #27ae60;
-        }
-        
-        .path-button:hover {
-            background-color: #219653;
-        }
-    </style>
+    <title>Story Map - The Garden of Forking Paths</title>
+    <link rel="stylesheet" href="map.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 </head>
 <body>
     <header>
-        <h1>The Garden of Forking Paths</h1>
-        <div class="subtitle">Story Map Visualization</div>
+        <h1>Story Map: The Garden of Forking Paths</h1>
+        <p class="subtitle">Interactive Visualization of Narrative Paths</p>
     </header>
 
-    <main>
-        <div id="controls">
-            <button id="zoom-in">Zoom In</button>
-            <button id="zoom-out">Zoom Out</button>
+    <nav class="controls">
+        <div class="control-group">
+            <label>Filter by Type:</label>
+            <select id="type-filter">
+                <option value="all">All Nodes</option>
+                <option value="intro">Introduction</option>
+                <option value="library">Library</option>
+                <option value="garden">Garden</option>
+                <option value="forest">Forest</option>
+                <option value="village">Village</option>
+                <option value="tower">Tower</option>
+                <option value="mirror">Mirror</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label>
+                <input type="checkbox" id="time-distortion-only"> 
+                Show only time distortion nodes
+            </label>
+        </div>
+        
+        <div class="control-group">
+            <label>
+                <input type="checkbox" id="choice-nodes-only"> 
+                Show only choice nodes
+            </label>
+        </div>
+        
+        <div class="control-group">
             <button id="reset-view">Reset View</button>
-            <button id="toggle-labels">Toggle Node Labels</button>
-            <button id="highlight-choices">Highlight Choice Nodes</button>
-            <button id="highlight-time-distortion">Highlight Time Distortion</button>
-            <button id="reset-highlights">Reset Highlights</button>
+            <button id="center-graph">Center Graph</button>
+        </div>
+    </nav>
+
+    <main class="map-container">
+        <div class="visualization-panel">
+            <div id="story-map"></div>
+            <div class="map-legend">
+                <h3>Legend</h3>
+                <div class="legend-item">
+                    <div class="legend-color intro-node"></div>
+                    <span>Introduction</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color library-node"></div>
+                    <span>Library</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color garden-node"></div>
+                    <span>Garden</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color forest-node"></div>
+                    <span>Forest</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color village-node"></div>
+                    <span>Village</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color tower-node"></div>
+                    <span>Tower</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color mirror-node"></div>
+                    <span>Mirror</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-indicator time-distortion"></div>
+                    <span>Time Distortion</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-indicator choice-node"></div>
+                    <span>Choice Node</span>
+                </div>
+            </div>
         </div>
         
-        <div id="map-container"></div>
-        
-        <div id="node-details">
-            <h2 id="node-title"></h2>
-            <div id="node-type"></div>
-            <div id="node-content"></div>
-            <div id="node-exits"></div>
-            <div id="node-choices"></div>
-        </div>
-        
-        <div id="map-legend">
-            <div class="legend-title">Legend:</div>
-            <div>
-                <div class="legend-title">Location Types:</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #e0e0e0;"></span> Intro/Station</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #f0e6d2;"></span> Library</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #e0f2e0;"></span> Garden</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #d5e8d4;"></span> Forest</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #e0f0ff;"></span> Mirror</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #d5d7e9;"></span> Village</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #bac8d3;"></span> Tower</div>
-            </div>
-            <div>
-                <div class="legend-title">Connection Types:</div>
-                <div class="legend-item"><span class="connection-type" style="background-color: #2c3e50;"></span> Direction (up, down, left, right)</div>
-                <div class="legend-item"><span class="connection-type" style="background-color: #e74c3c;"></span> Choice</div>
-            </div>
-            <div>
-                <div class="legend-title">Special Nodes:</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #fff; border: 2px dashed #e74c3c;"></span> Choice Node</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #fff; border: 2px solid #9b59b6;"></span> Time Distortion</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #f39c12;"></span> Start Node</div>
-                <div class="legend-item"><span class="legend-color" style="background-color: #16a085;"></span> Ending Node</div>
+        <aside class="info-panel">
+            <div class="node-details">
+                <h3>Node Information</h3>
+                <div id="node-info">
+                    <p>Click on a node to see details</p>
+                </div>
             </div>
             
-            <div class="path-highlight">
-                <div class="legend-title">Highlight Complete Paths:</div>
-                <button class="path-button" id="path-original">Original Ending Path</button>
-                <button class="path-button" id="path-alternate">Alternate Ending Path</button>
-                <button class="path-button" id="path-refuse">Refuse Ending Path</button>
+            <div class="path-analysis">
+                <h3>Path Analysis</h3>
+                <div id="path-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Nodes:</span>
+                        <span id="total-nodes">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Choice Nodes:</span>
+                        <span id="choice-nodes-count">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Navigation Nodes:</span>
+                        <span id="nav-nodes-count">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Ending Nodes:</span>
+                        <span id="ending-nodes-count">-</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Time Distortion Nodes:</span>
+                        <span id="time-distortion-count">-</span>
+                    </div>
+                </div>
             </div>
-        </div>
+            
+            <div class="path-finder">
+                <h3>Path Finder</h3>
+                <div class="path-controls">
+                    <select id="start-node">
+                        <option value="">Select start node...</option>
+                    </select>
+                    <select id="end-node">
+                        <option value="">Select end node...</option>
+                    </select>
+                    <button id="find-paths">Find Paths</button>
+                </div>
+                <div id="path-results"></div>
+            </div>
+            
+            <div class="story-branches">
+                <h3>Story Branches</h3>
+                <div id="branch-analysis">
+                    <p>Select a node to see possible story branches</p>
+                </div>
+            </div>
+        </aside>
     </main>
 
+    <footer>
+        <div class="instructions">
+            <h4>How to Use:</h4>
+            <ul>
+                <li><strong>Pan:</strong> Click and drag the background</li>
+                <li><strong>Zoom:</strong> Use mouse wheel or pinch gesture</li>
+                <li><strong>Node Details:</strong> Click any node to see information</li>
+                <li><strong>Highlight Paths:</strong> Hover over connections to see relationships</li>
+                <li><strong>Filter:</strong> Use controls above to focus on specific node types</li>
+            </ul>
+        </div>
+        <p class="attribution">
+            Story structure from "The Garden of Forking Paths" inspired by Jorge Luis Borges
+        </p>
+    </footer>
+
+    <!-- Import the story data -->
     <script src="story.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.25.0/cytoscape.min.js"></script>
-    <script src="game.js"></script>
+    <!-- Import the map visualization logic -->
+    <script src="map.js"></script>
 </body>
 </html>
