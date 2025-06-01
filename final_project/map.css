@@ -153,15 +153,9 @@ main {
 }
 
 /* Legend */
+
 .map-legend {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(10px);
-    flex: 1; /* Added flex: 1 to make legend smaller and fixed size */
-    max-height: 300px; /* Added max-height to limit legend size */
-    overflow-y: auto; /* Added scroll if legend content is too long */
+    background: rgba(255, 255, 255, 0.95)
 }
 
 .map-legend h3 {
