@@ -136,6 +136,8 @@ class StoryMapVisualizer {
             .force('link', d3.forceLink(this.links).id(d => d.id).distance(100))
             .force('charge', d3.forceManyBody().strength(-300))
             .force('center', d3.forceCenter(this.width / 2, this.height / 2))
+            .force('x', d3.forceX(this.width / 2).strength(0.01))
+            .force('y', d3.forceY(this.height / 2).strength(0.07))
             .force('collision', d3.forceCollide().radius(this.nodeRadius + 5));
         
         this.createLinks();
