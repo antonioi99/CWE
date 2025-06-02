@@ -10,32 +10,32 @@
     <header>
         <h1>The Garden of Forking Paths</h1>
         <div class="subtitle">A Philosophical Narrative Game</div>
+        <a href="map/map.html" class="map-link">View the Labyrinth Map</a>
     </header>
 
     <main>
-        <div id="left-panel">
-            <div id="game-container">
-                <div id="labyrinth-display">
-                    <div id="player"></div>
-                    <!-- Visual representation of the labyrinth will be generated here -->
-                </div>
-                
-                <div id="choices">
-                    <button id="start-button">Begin Journey</button>
-                </div>
-                
-                <div id="navigation" class="hidden">
-                    <button id="nav-up">Up</button>
-                    <button id="nav-left">Left</button>
-                    <div id="nav-center"></div>
-                    <button id="nav-right">Right</button>
-                    <button id="nav-down">Down</button>
-                </div>
+        <div id="navigation" class="hidden">
+            <button id="nav-up">Up</button>
+            <button id="nav-left">Left</button>
+            <div id="nav-center"></div>
+            <button id="nav-right">Right</button>
+            <button id="nav-down">Down</button>
+        </div>
+        <div id="game-container">
+            <div id="labyrinth-display">
+                <div id="path-container"></div>
+                <div id="player"></div>
+                <!-- Visual representation of the labyrinth will be generated here -->
+            </div>
+            
+            <div id="choices">
+                <button id="start-button">Begin Journey</button>
             </div>
         </div>
 
         <div id="narrative" class="fade-in">
                 <!-- Story text will be displayed here -->
+                <h2>Your Journey starts here</h2>
                 <p>Welcome to The Garden of Forking Paths, a narrative-driven, philosophical game inspired by Jorge Luis Borges' short story.</p>
                 <p>You embody Yu Tsun, a spy during World War I, navigating a mysterious labyrinth where time is not linear and reality is in flux.</p>
                 <p>Click "Begin Journey" to start your exploration of the labyrinth...</p>

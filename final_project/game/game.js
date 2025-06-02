@@ -163,6 +163,9 @@ function updatePlayerPosition() {
 function animatePlayerMovement(direction, callback) {
     // Define movement amount
     const moveAmount = 20;
+
+    const fromX = gameState.playerPosition.x;
+    const fromY = gameState.playerPosition.y;
     
     // Calculate new position based on direction
     switch (direction) {
@@ -179,6 +182,8 @@ function animatePlayerMovement(direction, callback) {
             gameState.playerPosition.x = Math.min(80, gameState.playerPosition.x + moveAmount);
             break;
     }
+
+    drawPathLine(fromX, fromY, gameState.playerPosition.x, gameState.playerPosition.y);
     
     // Update player position
     playerElement.style.left = `${gameState.playerPosition.x}%`;
@@ -186,6 +191,36 @@ function animatePlayerMovement(direction, callback) {
     
     // Wait for animation to complete before executing callback
     setTimeout(callback, 350);
+}
+
+
+function drawPathLine(x1, y1, x2, y2) {
+    const container = document.getElementById('path-container');
+
+    const line = document.createElement('div');
+    line.classList.add('path-line');
+
+    const displayWidth = labyrinthDisplay.offsetWidth;
+    const displayHeight = labyrinthDisplay.offsetHeight;
+
+    // Convert % positions to px
+    const startX = (x1 / 100) * displayWidth+12;
+    const startY = ((y1 / 100) * displayHeight)+5;
+    const endX = (x2 / 100) * displayWidth+12;
+    const endY = (y2 / 100) * displayHeight+5;
+
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+
+    line.style.width = `${length}px`;
+    line.style.height = `8px`; // thickness of the path
+    line.style.left = `${startX}px`;
+    line.style.top = `${startY}px`;
+    line.style.transform = `rotate(${angle}deg)`;
+
+    container.appendChild(line);
 }
 
 // Initialize the game when the page loads

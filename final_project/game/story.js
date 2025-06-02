@@ -4,7 +4,13 @@ const storyNodes = {
     'start': {
         title: 'Begin',
         content: '<p>Welcome to The Garden of Forking Paths.</p><p>Click "Begin Journey" to start.</p>',
-        type: 'intro'
+        type: 'intro',
+        choices: [
+            {
+                text: "Begin Journey",
+                nextNode: 'intro'
+            }
+        ]
     },
     
     // Introduction
