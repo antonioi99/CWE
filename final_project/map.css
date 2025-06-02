@@ -120,7 +120,7 @@ button:disabled {
 main {
     display: flex;
     flex: 1;
-    height: calc(100vh - 200px);
+    height: calc(150vh - 300px);
     gap: 1rem;
     padding: 1rem;
 }
