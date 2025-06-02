@@ -571,3 +571,5 @@ const storyNodes = {
         type: 'tower'
     }
 };
+
+module.exports = storyNodes;

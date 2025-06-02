@@ -286,12 +286,7 @@ class StoryMapVisualizer {
             <p><strong>Is Ending:</strong> ${node.isEnding ? 'Yes' : 'No'}</p>
             <p><strong>Incoming Connections:</strong> ${connectionInfo.incoming}</p>
             <p><strong>Outgoing Connections:</strong> ${connectionInfo.outgoing}</p>
-            <div class="node-content">
-                <strong>Content Preview:</strong>
-                <div style="max-height: 100px; overflow-y: auto; font-size: 0.9em; margin-top: 5px;">
-                    ${node.content.replace(/<[^>]*>/g, '').substring(0, 200)}...
-                </div>
-            </div>
+            <p><strong>Plot Description:</strong> ${node.content}</p>
         `;
     }
     
