@@ -50,6 +50,11 @@ function navigateToNode(nodeId) {
         console.error(`Story node ${nodeId} not found!`);
         return;
     }
+
+    // update progression bar
+    if (progressionSystem) {
+        progressionSystem.updateProgress(nodeId);
+    }
     
     // Update game state
     gameState.currentNodeId = nodeId;
@@ -223,5 +228,227 @@ function drawPathLine(x1, y1, x2, y2) {
     container.appendChild(line);
 }
 
+// Progression Bar
+// Add this to your existing game.js file
+
+class ProgressionSystem {
+    constructor() {
+        this.targetNode = 'the_point';
+        console.log('Initializing ProgressionSystem, target:', this.targetNode);
+        
+        this.distances = this.calculateDistances();
+        const validDistances = Object.entries(this.distances)
+            .filter(([nodeId, distance]) => nodeId !== 'start' && distance !== 999)
+            .map(([_, distance]) => distance);
+
+        this.maxDistance = validDistances.length > 0 ? Math.max(...validDistances) : 1;
+        
+        console.log('All calculated distances:', this.distances);
+        console.log('Max distance found:', this.maxDistance);
+        
+        this.createProgressBar();
+    }
+
+    // Calculate shortest path distances from each node to 'the_point'
+
+    calculateDistances() {
+        const distances = {};
+        
+        // Build a graph of all connections first
+        const graph = {};
+        for (const nodeId in storyNodes) {
+            graph[nodeId] = [];
+        }
+        
+        // Add forward connections from exits
+        for (const nodeId in storyNodes) {
+            const node = storyNodes[nodeId];
+            if (node.exits) {
+                for (const direction in node.exits) {
+                    const targetNode = node.exits[direction];
+                    if (targetNode && graph[nodeId]) {
+                        graph[nodeId].push(targetNode);
+                        
+                        // DEBUG: Log each connection
+                        console.log(`Exit connection: ${nodeId} -> ${targetNode} (${direction})`);
+                        
+                        // ADD BIDIRECTIONAL CONNECTIONS (if you want reverse paths)
+                        if (graph[targetNode]) {
+                            graph[targetNode].push(nodeId);
+                            console.log(`Reverse connection: ${targetNode} -> ${nodeId}`);
+                        }
+                    }
+                }
+            }
+            
+            // Add forward connections from choices
+            if (node.choices) {
+                for (const choice of node.choices) {
+                    if (choice.nextNode && graph[nodeId]) {
+                        graph[nodeId].push(choice.nextNode);
+                        console.log(`Choice connection: ${nodeId} -> ${choice.nextNode}`);
+                        
+                        // Note: Usually choices don't have reverse connections
+                        // because story choices are typically one-way
+                    }
+                }
+            }
+        }
+        
+        // DEBUG: Print the complete graph
+        console.log('Complete graph structure:');
+        for (const nodeId in graph) {
+            if (graph[nodeId].length > 0) {
+                console.log(`${nodeId}: [${graph[nodeId].join(', ')}]`);
+            }
+        }
+        
+        // Now use BFS from each node to find distance to target
+        for (const startNode in storyNodes) {
+            distances[startNode] = this.bfsDistance(startNode, this.targetNode, graph);
+        }
+        
+        return distances;
+    }
+
+    // Also debug your BFS function:
+    bfsDistance(start, target, graph) {
+        if (start === target) return 0;
+        
+        const queue = [start];
+        const visited = new Set([start]);
+        const distances = { [start]: 0 };
+        
+        console.log(`\nBFS from ${start} to ${target}:`);
+        
+        while (queue.length > 0) {
+            const current = queue.shift();
+            const currentDistance = distances[current];
+            
+            console.log(`  Visiting ${current} (distance: ${currentDistance})`);
+            
+            // Check all neighbors of current node
+            if (graph[current]) {
+                console.log(`    Neighbors: [${graph[current].join(', ')}]`);
+                
+                for (const neighbor of graph[current]) {
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        distances[neighbor] = currentDistance + 1;
+                        queue.push(neighbor);
+                        
+                        console.log(`    -> Added ${neighbor} with distance ${distances[neighbor]}`);
+                        
+                        // If we found the target, return the distance
+                        if (neighbor === target) {
+                            console.log(`    Found target! Distance: ${distances[neighbor]}`);
+                            return distances[neighbor];
+                        }
+                    }
+                }
+            } else {
+                console.log(`    No neighbors for ${current}`);
+            }
+        }
+        
+        console.log(`  Target ${target} unreachable from ${start}`);
+        return 999;
+    }
+
+    
+    createProgressBar() {
+        // Create progress bar container
+        const progressContainer = document.createElement('div');
+        progressContainer.id = 'progress-container';
+        progressContainer.innerHTML = `
+            <div id="progress-label">Journey Progress</div>
+            <div id="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+            <div id="progress-text">0%</div>
+        `;
+        
+        // Insert after the labyrinth display
+        const labyrinthDisplay = document.getElementById('labyrinth-display');
+        labyrinthDisplay.parentNode.insertBefore(progressContainer, labyrinthDisplay.nextSibling);
+        
+    }
+    
+    updateProgress(currentNodeId) {
+        if (!this.distances[currentNodeId]) return;
+        
+        const currentDistance = this.distances[currentNodeId];
+        const progressPercentage = Math.max(0, Math.round(((this.maxDistance - currentDistance) / this.maxDistance) * 100));
+
+        
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        
+        if (progressFill && progressText) {
+            progressFill.style.width = progressPercentage + '%';
+            progressText.textContent = progressPercentage + '%';
+            
+            // Special message when reaching the target
+            if (currentNodeId === this.targetNode) {
+                progressText.textContent = '100% - You have reached The Point!';
+                progressText.style.color = '#27ae60';
+                progressText.style.fontWeight = 'bold';
+            }
+        }
+        
+        // Optional: Log for debugging
+        console.log(`Node: ${currentNodeId}, Distance: ${currentDistance}, Progress: ${progressPercentage}%`);
+    }
+    
+    // Get a hint about the direction to progress
+    getProgressHint(currentNodeId) {
+        if (!this.distances[currentNodeId]) return null;
+        
+        const currentDistance = this.distances[currentNodeId];
+        if (currentDistance === 0) return "You have reached your destination!";
+        if (currentDistance === 1) return "You are very close to The Point!";
+        if (currentDistance <= 3) return "You are getting closer to The Point.";
+        if (currentDistance <= 5) return "You are making progress toward The Point.";
+        return "The Point feels distant, but every step matters.";
+    }
+}
+
+// Initialize the progression system when the game loads
+let progressionSystem;
+
+function initProgressionSystem() {
+    if (typeof storyNodes !== 'undefined') {
+        console.log('Story nodes available:', Object.keys(storyNodes));
+        console.log('Looking for target node "the_point":', storyNodes['the_point'] ? 'FOUND' : 'NOT FOUND');
+        
+        progressionSystem = new ProgressionSystem();
+        
+        // Debug: Check distances for key nodes
+        console.log('Distances calculated:');
+        console.log('- start:', progressionSystem.distances['start']);
+        console.log('- intro:', progressionSystem.distances['intro']);
+        console.log('- the_point:', progressionSystem.distances['the_point']);
+        console.log('Max distance:', progressionSystem.maxDistance);
+        
+        // Set initial progress for intro node (since that's where the game actually starts)
+        progressionSystem.updateProgress('intro');
+    } else {
+        console.log('Story nodes not loaded yet, retrying...');
+        setTimeout(initProgressionSystem, 100);
+    }
+}
+
+
+function updateNodeProgress(nodeId) {
+    if (progressionSystem) {
+        progressionSystem.updateProgress(nodeId);
+    }
+}
+
+
+
 // Initialize the game when the page loads
-window.addEventListener('load', initGame);
+window.addEventListener('load', function() {
+    initGame();
+    initProgressionSystem();
+});
