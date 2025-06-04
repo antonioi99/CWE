@@ -179,6 +179,14 @@ footer {
     animation: fadeIn 1s;
 }
 
+#right-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 800px;
+    gap: 1rem;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

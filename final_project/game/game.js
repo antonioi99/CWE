@@ -357,21 +357,12 @@ class ProgressionSystem {
 
     
     createProgressBar() {
-        // Create progress bar container
-        const progressContainer = document.createElement('div');
-        progressContainer.id = 'progress-container';
-        progressContainer.innerHTML = `
-            <div id="progress-label">Journey Progress</div>
-            <div id="progress-bar">
-                <div id="progress-fill"></div>
-            </div>
-            <div id="progress-text">0%</div>
-        `;
-        
-        // Insert after the labyrinth display
-        const labyrinthDisplay = document.getElementById('labyrinth-display');
-        labyrinthDisplay.parentNode.insertBefore(progressContainer, labyrinthDisplay.nextSibling);
-        
+        // Make sure the progress container exists
+        const progressContainer = document.getElementById('progress-container');
+        if (!progressContainer) {
+            console.error('Progress container not found in HTML.');
+            return;
+        }
     }
     
     updateProgress(currentNodeId) {

@@ -10,3 +10,6 @@ si muove nel labirinto, cercando di trovare una soluzione, cercando di arrivare 
 quando arriva al punto si rende conto che tutte le possibile strade avrebbero portato a quel punto(?)
 
 si dovev
+
+
+check the distances
