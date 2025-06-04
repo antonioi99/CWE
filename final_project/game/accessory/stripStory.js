@@ -1,5 +1,5 @@
 const fs = require('fs');
-const original = require('./story.js');
+const original = require('../story.js');
 
 function stripContent(obj) {
     const result = {};
