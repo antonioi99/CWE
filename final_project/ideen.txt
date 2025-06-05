@@ -12,4 +12,6 @@ quando arriva al punto si rende conto che tutte le possibile strade avrebbero po
 si dovev
 
 
-check the distances
+check the distances V
+migliorare grafica
+alternative choices/freccette V

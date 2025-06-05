@@ -290,52 +290,13 @@ class StoryMapVisualizer {
         `;
     }
     
-    displayNodeBranches(node) {
-        const branchDiv = document.getElementById('branch-analysis');
-        const branches = this.getNodeBranches(node.id);
-        
-        let branchHtml = `<h4>From "${node.title}":</h4>`;
-        
-        if (branches.choices.length > 0) {
-            branchHtml += '<h5>Choice Branches:</h5><ul>';
-            branches.choices.forEach(choice => {
-                const targetNode = this.nodes.find(n => n.id === choice.target);
-                branchHtml += `<li><strong>${choice.choiceText}</strong> → ${targetNode.title}</li>`;
-            });
-            branchHtml += '</ul>';
-        }
-        
-        if (branches.exits.length > 0) {
-            branchHtml += '<h5>Navigation Exits:</h5><ul>';
-            branches.exits.forEach(exit => {
-                const targetNode = this.nodes.find(n => n.id === exit.target);
-                branchHtml += `<li><strong>${exit.direction}</strong> → ${targetNode.title}</li>`;
-            });
-            branchHtml += '</ul>';
-        }
-        
-        if (branches.choices.length === 0 && branches.exits.length === 0) {
-            branchHtml += '<p>This is an ending node - no further branches.</p>';
-        }
-        
-        branchDiv.innerHTML = branchHtml;
-    }
-    
     getNodeConnections(nodeId) {
         const incoming = this.links.filter(link => link.target.id === nodeId).length;
         const outgoing = this.links.filter(link => link.source.id === nodeId).length;
         return { incoming, outgoing };
     }
     
-    getNodeBranches(nodeId) {
-        const choices = this.links.filter(link => 
-            link.source.id === nodeId && link.type === 'choice'
-        );
-        const exits = this.links.filter(link => 
-            link.source.id === nodeId && link.type === 'navigation'
-        );
-        return { choices, exits };
-    }
+
     
     // Tooltip functions
     showNodeTooltip(event, node) {
@@ -433,6 +394,14 @@ class StoryMapVisualizer {
         document.getElementById('find-paths').addEventListener('click', () => {
             this.findPaths();
         });
+        // Find Node functionality
+        document.getElementById('find-node-button').addEventListener('click', () => {
+            const nodeId = document.getElementById('find-node-selector').value;
+            if (nodeId) {
+                const node = this.nodes.find(n => n.id === nodeId);
+                if (node) this.focusOnNode(node);
+            }
+        });
     }
     
     filterByType(type) {
@@ -513,6 +482,7 @@ class StoryMapVisualizer {
     populateNodeSelectors() {
         const startSelect = document.getElementById('start-node');
         const endSelect = document.getElementById('end-node');
+        const findSelect = document.getElementById('find-node-selector');
         
         this.nodes.forEach(node => {
             const option1 = document.createElement('option');
@@ -524,6 +494,11 @@ class StoryMapVisualizer {
             option2.value = node.id;
             option2.textContent = node.title;
             endSelect.appendChild(option2);
+
+            const option3 = document.createElement('option');
+            option3.value = node.id;
+            option3.textContent = node.title;
+            findSelect.appendChild(option3);
         });
     }
     
@@ -574,6 +549,21 @@ class StoryMapVisualizer {
         
         return paths;
     }
+
+    focusOnNode(node) {
+        const transform = d3.zoomIdentity
+            .translate(this.width / 2 - node.x, this.height / 2 - node.y)
+            .scale(1.5);
+
+        this.svg.transition().duration(750).call(
+            d3.zoom().transform,
+            transform
+        );
+        // Visually highlight the node
+        this.nodeElements.attr('stroke-width', d => d.id === node.id ? 5 : 2);
+        this.selectNode(node);
+    }
+
 }
 
 // Initialize the visualization when the page loads

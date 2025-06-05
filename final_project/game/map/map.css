@@ -312,34 +312,39 @@ main {
     font-size: 0.9rem;
 }
 
-/* Story Branches */
-.story-branches {
-    border-left-color: #f39c12 !important;
-}
-
-.story-branches ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-.story-branches li {
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #ecf0f1;
+/* Find Node */
+.find-node {
+    border-left: 3px solid #27ae60;
     padding-left: 1rem;
-    position: relative;
 }
 
-.story-branches li:before {
-    content: '→';
-    position: absolute;
-    left: 0;
-    color: #3498db;
-    font-weight: bold;
+.find-node-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
 }
 
-.story-branches li:last-child {
-    border-bottom: none;
+.find-node-controls select {
+    width: 100%;
 }
+
+.find-node-controls button {
+    padding: 0.4rem 0.8rem;
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.find-node-controls button:hover {
+    background-color: #219150;
+}
+
+
 
 /* Tooltips */
 .node-tooltip,

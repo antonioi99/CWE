@@ -67,23 +67,52 @@ function navigateToNode(nodeId) {
         narrativeElement.innerHTML = `<h2>${node.title}</h2>${node.content}`;
         narrativeElement.classList.add('fade-in');
         
-        // Update available directions
-        updateAvailableDirections(node.exits);
+        // IMPROVED: Clear any existing interactions first
+        clearAllInteractions();
         
         // Update player position on the labyrinth
         updateLabyrinthVisual(nodeId);
         
-        // If this is a choice node, show choices instead of navigation
+        // IMPROVED: Determine interaction type and show only one
         if (node.choices && node.choices.length > 0) {
+            // This is a choice node - show choices, hide navigation
             showChoices(node.choices);
-            navigationElement.classList.add('hidden');
+            hideNavigation();
+            console.log(`Node ${nodeId}: Showing choices, hiding navigation`);
+        } else if (node.exits && Object.keys(node.exits).length > 0) {
+            // This is a navigation node - show navigation, hide choices  
+            showNavigation(node.exits);
+            hideChoices();
+            console.log(`Node ${nodeId}: Showing navigation, hiding choices`);
         } else {
-            navigationElement.classList.remove('hidden');
+            // Dead end - hide both (shouldn't happen in a well-designed game)
+            hideNavigation();
+            hideChoices();
+            console.log(`Node ${nodeId}: No interactions available (dead end)`);
         }
     }, 300);
 }
 
-// Show choices for the player
+// IMPROVED: Helper functions for managing UI interactions
+
+// Clear all interactions
+function clearAllInteractions() {
+    hideChoices();
+    hideNavigation();
+}
+
+// Show navigation controls
+function showNavigation(exits = {}) {
+    navigationElement.classList.remove('hidden');
+    updateAvailableDirections(exits);
+}
+
+// Hide navigation controls  
+function hideNavigation() {
+    navigationElement.classList.add('hidden');
+}
+
+// Show choices (existing function, but now also hides navigation)
 function showChoices(choices) {
     choicesElement.innerHTML = '';
     
@@ -104,6 +133,11 @@ function showChoices(choices) {
         
         choicesElement.appendChild(button);
     });
+}
+
+// Hide choices
+function hideChoices() {
+    choicesElement.innerHTML = '';
 }
 
 // Move in a direction
@@ -388,14 +422,8 @@ class ProgressionSystem {
             progressText.textContent = '0%';
             progressText.style.color = '';
             progressText.style.fontWeight = '';
+            progressText.style.visibility = 'visible';
             console.log(`Set progress to 0% for ${currentNodeId}`);
-            
-            // Check if percentage should be hidden
-            if (this.hidePercentageNodes.includes(currentNodeId)) {
-                progressText.style.visibility = 'hidden';
-            } else {
-                progressText.style.visibility = 'visible';
-            }
             return;
         }
         
@@ -410,6 +438,7 @@ class ProgressionSystem {
             return;
         }
         
+        // NEW: Handle hidden percentage nodes - set bar to 100% but hide text
         if (this.hidePercentageNodes.includes(currentNodeId)) {
             progressFill.style.width = '100%';
             progressText.textContent = '100%'; // Set content but will be hidden
@@ -432,6 +461,7 @@ class ProgressionSystem {
         if (currentDistance === 999) {
             progressFill.style.width = '0%';
             progressText.textContent = '0%';
+            progressText.style.visibility = 'visible';
             console.log(`Node ${currentNodeId} unreachable, set to 0%`);
         } else {
             // Calculate progress (closer = higher percentage)
@@ -441,16 +471,9 @@ class ProgressionSystem {
             progressText.textContent = progressPercentage + '%';
             progressText.style.color = '';
             progressText.style.fontWeight = '';
+            progressText.style.visibility = 'visible';
             
             console.log(`Node: ${currentNodeId}, Distance: ${currentDistance}, Progress: ${progressPercentage}%`);
-        }
-        
-        // ADDED: Check if percentage text should be hidden for this node
-        if (this.hidePercentageNodes.includes(currentNodeId)) {
-            progressText.style.visibility = 'hidden';
-            console.log(`Hiding percentage text for node: ${currentNodeId}`);
-        } else {
-            progressText.style.visibility = 'visible';
         }
     }
     

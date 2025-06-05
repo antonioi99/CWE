@@ -93,6 +93,17 @@
                     <span>Choice Node</span>
                 </div>
             </div>
+
+            <div class="find-node">
+                <h3>Find Node</h3>
+                <div class="find-node-controls">
+                    <select id="find-node-selector">
+                        <option value="">Select a node...</option>
+                    </select>
+                    <button id="find-node-button">Go to Node</button>
+                </div>
+            </div>
+
             <div class="node-details">
                 <h3>Node Information</h3>
                 <div id="node-info">
@@ -100,6 +111,20 @@
                 </div>
             </div>
             
+            <div class="path-finder">
+                <h3>Path Finder</h3>
+                <div class="path-controls">
+                    <select id="start-node">
+                        <option value="">Select start node...</option>
+                    </select>
+                    <select id="end-node">
+                        <option value="">Select end node...</option>
+                    </select>
+                    <button id="find-paths">Find Paths</button>
+                </div>
+                <div id="path-results"></div>
+            </div>
+
             <div class="path-analysis">
                 <h3>Path Analysis</h3>
                 <div id="path-stats">
@@ -123,27 +148,6 @@
                         <span class="stat-label">Time Distortion Nodes:</span>
                         <span id="time-distortion-count">-</span>
                     </div>
-                </div>
-            </div>
-            
-            <div class="path-finder">
-                <h3>Path Finder</h3>
-                <div class="path-controls">
-                    <select id="start-node">
-                        <option value="">Select start node...</option>
-                    </select>
-                    <select id="end-node">
-                        <option value="">Select end node...</option>
-                    </select>
-                    <button id="find-paths">Find Paths</button>
-                </div>
-                <div id="path-results"></div>
-            </div>
-            
-            <div class="story-branches">
-                <h3>Story Branches</h3>
-                <div id="branch-analysis">
-                    <p>Select a node to see possible story branches</p>
                 </div>
             </div>
         </aside>
