@@ -234,6 +234,13 @@ function drawPathLine(x1, y1, x2, y2) {
 class ProgressionSystem {
     constructor() {
         this.targetNode = 'the_point';
+        
+        // ADD: Define nodes where percentage text should be hidden
+        this.hidePercentageNodes = [
+            'alternate_ending', 'refuse_ending', 'original_ending',
+            'epilogue_original', 'epilogue_refuse', 'epilogue_alternate'
+        ];
+        
         console.log('Initializing ProgressionSystem, target:', this.targetNode);
         
         this.distances = this.calculateDistances();
@@ -250,7 +257,6 @@ class ProgressionSystem {
     }
 
     // Calculate shortest path distances from each node to 'the_point'
-
     calculateDistances() {
         const distances = {};
         
@@ -366,29 +372,103 @@ class ProgressionSystem {
     }
     
     updateProgress(currentNodeId) {
-        if (!this.distances[currentNodeId]) return;
-        
-        const currentDistance = this.distances[currentNodeId];
-        const progressPercentage = Math.max(0, Math.round(((this.maxDistance - currentDistance) / this.maxDistance) * 100));
-
+        console.log(`Updating progress for node: ${currentNodeId}`);
         
         const progressFill = document.getElementById('progress-fill');
         const progressText = document.getElementById('progress-text');
         
-        if (progressFill && progressText) {
-            progressFill.style.width = progressPercentage + '%';
-            progressText.textContent = progressPercentage + '%';
-            
-            // Special message when reaching the target
-            if (currentNodeId === this.targetNode) {
-                progressText.textContent = '100% - You have reached The Point!';
-                progressText.style.color = '#27ae60';
-                progressText.style.fontWeight = 'bold';
-            }
+        if (!progressFill || !progressText) {
+            console.error('Progress elements not found');
+            return;
         }
         
-        // Optional: Log for debugging
-        console.log(`Node: ${currentNodeId}, Distance: ${currentDistance}, Progress: ${progressPercentage}%`);
+        // FIXED: Handle start and intro nodes specially - set to 0%
+        if (currentNodeId === 'start' || currentNodeId === 'intro') {
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            progressText.style.color = '';
+            progressText.style.fontWeight = '';
+            console.log(`Set progress to 0% for ${currentNodeId}`);
+            
+            // Check if percentage should be hidden
+            if (this.hidePercentageNodes.includes(currentNodeId)) {
+                progressText.style.visibility = 'hidden';
+            } else {
+                progressText.style.visibility = 'visible';
+            }
+            return;
+        }
+        
+        // FIXED: Handle the_point specially - set to 100%
+        if (currentNodeId === this.targetNode) {
+            progressFill.style.width = '100%';
+            progressText.textContent = '100% - You have reached The Point!';
+            progressText.style.color = '#27ae60';
+            progressText.style.fontWeight = 'bold';
+            progressText.style.visibility = 'visible'; // Always show at target
+            console.log('Set progress to 100% for the_point');
+            return;
+        }
+        
+        if (this.hidePercentageNodes.includes(currentNodeId)) {
+            progressFill.style.width = '100%';
+            progressText.textContent = '100%'; // Set content but will be hidden
+            progressText.style.color = '';
+            progressText.style.fontWeight = '';
+            progressText.style.visibility = 'hidden';
+            console.log(`Hidden node ${currentNodeId}: bar at 100%, text hidden`);
+            return;
+        }
+        
+        // For all other nodes, calculate based on distance
+        if (!this.distances[currentNodeId]) {
+            console.log(`No distance data for ${currentNodeId}`);
+            return;
+        }
+        
+        const currentDistance = this.distances[currentNodeId];
+        
+        // If unreachable, set to 0%
+        if (currentDistance === 999) {
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            console.log(`Node ${currentNodeId} unreachable, set to 0%`);
+        } else {
+            // Calculate progress (closer = higher percentage)
+            const progressPercentage = Math.max(0, Math.round(((this.maxDistance - currentDistance) / this.maxDistance) * 100));
+            
+            progressFill.style.width = progressPercentage + '%';
+            progressText.textContent = progressPercentage + '%';
+            progressText.style.color = '';
+            progressText.style.fontWeight = '';
+            
+            console.log(`Node: ${currentNodeId}, Distance: ${currentDistance}, Progress: ${progressPercentage}%`);
+        }
+        
+        // ADDED: Check if percentage text should be hidden for this node
+        if (this.hidePercentageNodes.includes(currentNodeId)) {
+            progressText.style.visibility = 'hidden';
+            console.log(`Hiding percentage text for node: ${currentNodeId}`);
+        } else {
+            progressText.style.visibility = 'visible';
+        }
+    }
+    
+    // ADDED: Method to add nodes where percentage should be hidden
+    addHidePercentageNode(nodeId) {
+        if (!this.hidePercentageNodes.includes(nodeId)) {
+            this.hidePercentageNodes.push(nodeId);
+            console.log(`Added ${nodeId} to hide percentage list`);
+        }
+    }
+    
+    // ADDED: Method to remove nodes from hide percentage list
+    removeHidePercentageNode(nodeId) {
+        const index = this.hidePercentageNodes.indexOf(nodeId);
+        if (index > -1) {
+            this.hidePercentageNodes.splice(index, 1);
+            console.log(`Removed ${nodeId} from hide percentage list`);
+        }
     }
     
     // Get a hint about the direction to progress
@@ -414,6 +494,12 @@ function initProgressionSystem() {
         
         progressionSystem = new ProgressionSystem();
         
+        // EXAMPLE: Add specific nodes where you want to hide the percentage
+        // Uncomment and modify these lines with your actual node IDs:
+        // progressionSystem.addHidePercentageNode('secret_chamber');
+        // progressionSystem.addHidePercentageNode('hidden_library');
+        // progressionSystem.addHidePercentageNode('mysterious_door');
+        
         // Debug: Check distances for key nodes
         console.log('Distances calculated:');
         console.log('- start:', progressionSystem.distances['start']);
@@ -421,7 +507,7 @@ function initProgressionSystem() {
         console.log('- the_point:', progressionSystem.distances['the_point']);
         console.log('Max distance:', progressionSystem.maxDistance);
         
-        // Set initial progress for intro node (since that's where the game actually starts)
+        // FIXED: Set initial progress for intro node properly
         progressionSystem.updateProgress('intro');
     } else {
         console.log('Story nodes not loaded yet, retrying...');
