@@ -9,6 +9,9 @@ class StoryMapVisualizer {
         this.nodeElements = null;
         this.linkElements = null;
         this.labelElements = null;
+        this.allPaths = [];
+        this.currentPage = 0;
+        this.pathsPerPage = 5;
         
         // Visualization settings
         this.width = 1200;
@@ -394,6 +397,7 @@ class StoryMapVisualizer {
         document.getElementById('find-paths').addEventListener('click', () => {
             this.findPaths();
         });
+        
         // Find Node functionality
         document.getElementById('find-node-button').addEventListener('click', () => {
             const nodeId = document.getElementById('find-node-selector').value;
@@ -453,6 +457,27 @@ class StoryMapVisualizer {
         this.nodeElements.style('display', 'block').attr('opacity', 1);
         this.labelElements.style('display', 'block');
         this.linkElements.style('display', 'block').attr('opacity', 1);
+
+        // Reset path highlighting
+        this.nodeElements.attr('stroke-width', d => {
+            if (d.isEnding) return 4;
+            if (d.timeDistortion) return 3;
+            return 2;
+        }).attr('stroke', d => {
+            if (d.isEnding) return '#e74c3c';
+            if (d.timeDistortion) return '#f39c12';
+            return '#2c3e50';
+        });
+
+        this.labelElements
+            .attr('fill', '#2c3e50')
+            .attr('font-weight', 'normal');
+
+        // Reset path result styling
+        document.querySelectorAll('.clickable-path').forEach(el => {
+            el.style.backgroundColor = '';
+            el.style.borderColor = '#ddd';
+        });
     }
     
     centerGraph() {
@@ -511,21 +536,89 @@ class StoryMapVisualizer {
             return;
         }
         
-        const paths = this.findAllPaths(startId, endId);
+        // Find all paths and sort by length
+        this.allPaths = this.findAllPaths(startId, endId);
+        this.allPaths.sort((a, b) => a.length - b.length);
+        
+        // Reset to first page
+        this.currentPage = 0;
+        
+        this.displayPaths();
+    }
+
+    displayPaths() {
         const resultsDiv = document.getElementById('path-results');
         
-        if (paths.length === 0) {
+        if (this.allPaths.length === 0) {
             resultsDiv.innerHTML = '<p>No paths found between selected nodes.</p>';
-        } else {
-            let html = `<h4>Found ${paths.length} path(s):</h4>`;
-            paths.forEach((path, index) => {
-                html += `<div class="path-result">
-                    <strong>Path ${index + 1} (${path.length} steps):</strong><br/>
-                    ${path.map(nodeId => this.nodes.find(n => n.id === nodeId).title).join(' → ')}
-                </div>`;
-            });
-            resultsDiv.innerHTML = html;
+            return;
         }
+
+        const startIndex = this.currentPage * this.pathsPerPage;
+        const endIndex = Math.min(startIndex + this.pathsPerPage, this.allPaths.length);
+        const currentPaths = this.allPaths.slice(startIndex, endIndex);
+
+        let html = `<div class="path-header">
+            <h4>Found ${this.allPaths.length} path(s) total</h4>
+            <p>Showing paths ${startIndex + 1}-${endIndex} (sorted by length)</p>
+        </div>`;
+
+        // Display current batch of paths
+        // currentPaths.forEach((path, index) => {
+        //     const globalIndex = startIndex + index + 1;
+        //     html += `<div class="path-result">
+        //         <strong>Path ${globalIndex} (${path.length} steps):</strong><br/>
+        //         ${path.map(nodeId => this.nodes.find(n => n.id === nodeId).title).join(' → ')}
+        //     </div>`;
+        // });
+        currentPaths.forEach((path, index) => {
+            const globalIndex = startIndex + index + 1;
+            html += `<div class="path-result clickable-path" data-path="${path.join(',')}" style="cursor: pointer; padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 4px;">
+                <strong>Path ${globalIndex} (${path.length} steps):</strong><br/>
+                ${path.map(nodeId => this.nodes.find(n => n.id === nodeId).title).join(' → ')}
+            </div>`;
+        });
+
+        // Add pagination controls
+        html += this.createPaginationControls();
+
+        resultsDiv.innerHTML = html;
+        
+        // Add event listeners for pagination buttons
+        this.setupPaginationListeners();
+        this.setupPathClickListeners();
+    }
+
+    setupPaginationListeners() {
+        const prevButton = document.querySelector('.pagination-btn[data-action="previous"]');
+        const nextButton = document.querySelector('.pagination-btn[data-action="next"]');
+        
+        if (prevButton) {
+            prevButton.addEventListener('click', () => this.previousPage());
+        }
+        
+        if (nextButton) {
+            nextButton.addEventListener('click', () => this.nextPage());
+        }
+    }
+
+    setupPathClickListeners() {
+        const pathElements = document.querySelectorAll('.clickable-path');
+        pathElements.forEach(pathElement => {
+            pathElement.addEventListener('click', (e) => {
+                const pathString = e.currentTarget.getAttribute('data-path');
+                const pathNodeIds = pathString.split(',');
+                this.highlightPath(pathNodeIds);
+                
+                // Visual feedback for selected path
+                document.querySelectorAll('.clickable-path').forEach(el => {
+                    el.style.backgroundColor = '';
+                    el.style.borderColor = '#ddd';
+                });
+                e.currentTarget.style.backgroundColor = '#e3f2fd';
+                e.currentTarget.style.borderColor = '#2196f3';
+            });
+        });
     }
     
     findAllPaths(startId, endId, visited = new Set(), currentPath = []) {
@@ -550,6 +643,87 @@ class StoryMapVisualizer {
         return paths;
     }
 
+    highlightPath(pathNodeIds) {
+        // Reset all elements to default opacity
+        this.nodeElements.attr('opacity', 0.3);
+        this.linkElements.attr('opacity', 0.1);
+        this.labelElements.attr('opacity', 0.3);
+        
+        // Highlight nodes in the path
+        this.nodeElements
+            .filter(d => pathNodeIds.includes(d.id))
+            .attr('opacity', 1)
+            .attr('stroke-width', 4)
+            .attr('stroke', '#2196f3');
+        
+        // Highlight labels for path nodes
+        this.labelElements
+            .filter(d => pathNodeIds.includes(d.id))
+            .attr('opacity', 1)
+            .attr('fill', '#2196f3')
+            .attr('font-weight', 'bold');
+        
+        // Highlight links that are part of the path
+        this.linkElements
+            .filter(d => {
+                const sourceIndex = pathNodeIds.indexOf(d.source.id);
+                const targetIndex = pathNodeIds.indexOf(d.target.id);
+                return sourceIndex !== -1 && targetIndex !== -1 && Math.abs(sourceIndex - targetIndex) === 1;
+            })
+            .attr('opacity', 1)
+            .attr('stroke', '#2196f3')
+            .attr('stroke-width', 4);
+        
+        // Update node info for the first node in the path
+        const firstNode = this.nodes.find(n => n.id === pathNodeIds[0]);
+        if (firstNode) {
+            this.displayNodeInfo(firstNode);
+        }
+    }
+
+    createPaginationControls() {
+        const totalPages = Math.ceil(this.allPaths.length / this.pathsPerPage);
+        
+        if (totalPages <= 1) {
+            return ''; // No pagination needed
+        }
+
+        let html = '<div class="pagination-controls" style="margin-top: 15px; text-align: center;">';
+        
+        // Previous button
+        if (this.currentPage > 0) {
+            html += `<button class="pagination-btn" data-action="previous">← Previous</button>`;
+        }
+        
+        // Page info
+        html += `<span class="page-info" style="margin: 0 15px;">
+            Page ${this.currentPage + 1} of ${totalPages}
+        </span>`;
+        
+        // Next button
+        if (this.currentPage < totalPages - 1) {
+            html += `<button class="pagination-btn" data-action="next">Next →</button>`;
+        }
+        
+        html += '</div>';
+        return html;
+    }
+
+    nextPage() {
+        const totalPages = Math.ceil(this.allPaths.length / this.pathsPerPage);
+        if (this.currentPage < totalPages - 1) {
+            this.currentPage++;
+            this.displayPaths();
+        }
+    }
+
+    previousPage() {
+        if (this.currentPage > 0) {
+            this.currentPage--;
+            this.displayPaths();
+        }
+    }
+
     focusOnNode(node) {
         const transform = d3.zoomIdentity
             .translate(this.width / 2 - node.x, this.height / 2 - node.y)
@@ -563,8 +737,10 @@ class StoryMapVisualizer {
         this.nodeElements.attr('stroke-width', d => d.id === node.id ? 5 : 2);
         this.selectNode(node);
     }
-
 }
+
+// Store the visualizer instance globally so pagination can access it
+let storyMapVisualizer;
 
 // Initialize the visualization when the page loads
 document.addEventListener('DOMContentLoaded', () => {
@@ -575,6 +751,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
     
-    // Create the visualization
-    new StoryMapVisualizer();
+    // Create the visualization and store it globally
+    storyMapVisualizer = new StoryMapVisualizer();
 });
