@@ -190,6 +190,10 @@ function updateLabyrinthVisual(nodeId) {
     } else {
         labyrinthDisplay.style.boxShadow = 'none';
     }
+
+    const colors = getColorsFromCSS(node.type);
+    playerElement.style.backgroundColor = colors.player;
+    playerElement.style.borderColor = colors.player;
 }
 
 // Set initial player position
@@ -240,10 +244,15 @@ function animatePlayerMovement(direction, callback) {
 // Function to leave a breadcrumb dot at the current position
 function leaveBreadcrumb(x, y) {
     const container = document.getElementById('path-container'); // Same container as the path lines
+    const currentNode = storyNodes[gameState.currentNodeId];
     
     // Create a new dot element
     const breadcrumb = document.createElement('div');
     breadcrumb.classList.add('breadcrumb-dot');
+
+    const colors = getColorsFromCSS(currentNode.type);
+    breadcrumb.style.backgroundColor = colors.breadcrumb;
+    breadcrumb.style.borderColor = colors.breadcrumb;
     
     // Position the breadcrumb at the specified coordinates
     breadcrumb.style.left = `${x}%`;
@@ -253,6 +262,90 @@ function leaveBreadcrumb(x, y) {
     container.appendChild(breadcrumb);
 }
 
+// Function to read colors from CSS custom properties
+// function getColorsFromCSS() {
+//     const root = document.documentElement;
+//     const computedStyle = getComputedStyle(root);
+    
+//     return {
+//         intro: computedStyle.getPropertyValue('--intro-color').trim(),
+//         library: computedStyle.getPropertyValue('--library-color').trim(),
+//         garden: computedStyle.getPropertyValue('--garden-color').trim(),
+//         forest: computedStyle.getPropertyValue('--forest-color').trim(),
+//         village: computedStyle.getPropertyValue('--village-color').trim(),
+//         tower: computedStyle.getPropertyValue('--tower-color').trim(),
+//         mirror: computedStyle.getPropertyValue('--mirror-color').trim(),
+//         station: computedStyle.getPropertyValue('--station-color').trim(),
+//         default: computedStyle.getPropertyValue('--default-color').trim()
+//     };
+// };
+
+
+function getColorsFromCSS(nodeType) {
+    console.log('Getting colors for node type:', nodeType);
+    
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+    
+    // Get the base color for this node type
+    let baseColor;
+    let cssVarName;
+    
+    switch(nodeType) {
+        case 'intro':
+            cssVarName = '--intro-color';
+            baseColor = computedStyle.getPropertyValue('--intro-color').trim();
+            break;
+        case 'library':
+            cssVarName = '--library-color';
+            baseColor = computedStyle.getPropertyValue('--library-color').trim();
+            break;
+        case 'garden':
+            cssVarName = '--garden-color';
+            baseColor = computedStyle.getPropertyValue('--garden-color').trim();
+            break;
+        case 'forest':
+            cssVarName = '--forest-color';
+            baseColor = computedStyle.getPropertyValue('--forest-color').trim();
+            break;
+        case 'village':
+            cssVarName = '--village-color';
+            baseColor = computedStyle.getPropertyValue('--village-color').trim();
+            break;
+        case 'tower':
+            cssVarName = '--tower-color';
+            baseColor = computedStyle.getPropertyValue('--tower-color').trim();
+            break;
+        case 'mirror':
+            cssVarName = '--mirror-color';
+            baseColor = computedStyle.getPropertyValue('--mirror-color').trim();
+            break;
+        case 'station':
+            cssVarName = '--station-color';
+            baseColor = computedStyle.getPropertyValue('--station-color').trim();
+            break;
+        default:
+            cssVarName = '--default-color';
+            baseColor = computedStyle.getPropertyValue('--default-color').trim();
+            break;
+    }
+    
+    console.log(`CSS variable ${cssVarName} = "${baseColor}"`);
+    
+    // If no color found or empty, use fallback
+    if (!baseColor) {
+        baseColor = '#FF6B6B'; // fallback red
+        console.log('No color found, using fallback:', baseColor);
+    }
+    
+    const result = {
+        player: baseColor,
+        breadcrumb: baseColor
+    };
+    
+    console.log('Returning colors:', result);
+    return result;
+}
 
 
 // function drawPathLine(x1, y1, x2, y2) {
