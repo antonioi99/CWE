@@ -85,10 +85,16 @@ const storyNodes = {
             <p>He seems to know something about your mission. Will you question him?</p>
         `,
         type: 'library',
-        exits: {
-            down: 'library_entrance',
-            up: 'library_conversation'
-        }
+        choices: [
+            {
+                text: 'Yes',
+                nextNode: 'library_conversation'
+            },
+            {
+                text: 'No',
+                nextNode: 'library_entrance'
+            }
+        ]
     },
     
     'library_conversation': {

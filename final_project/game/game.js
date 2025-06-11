@@ -222,7 +222,10 @@ function animatePlayerMovement(direction, callback) {
             break;
     }
 
-    drawPathLine(fromX, fromY, gameState.playerPosition.x, gameState.playerPosition.y);
+    // drawPathLine(fromX, fromY, gameState.playerPosition.x, gameState.playerPosition.y);
+
+    // Leave a breadcrumb at the OLD position before moving
+    leaveBreadcrumb(fromX, fromY);
     
     // Update player position
     playerElement.style.left = `${gameState.playerPosition.x}%`;
@@ -233,34 +236,53 @@ function animatePlayerMovement(direction, callback) {
 }
 
 
-function drawPathLine(x1, y1, x2, y2) {
-    const container = document.getElementById('path-container');
 
-    const line = document.createElement('div');
-    line.classList.add('path-line');
-
-    const displayWidth = labyrinthDisplay.offsetWidth;
-    const displayHeight = labyrinthDisplay.offsetHeight;
-
-    // Convert % positions to px
-    const startX = (x1 / 100) * displayWidth+12;
-    const startY = ((y1 / 100) * displayHeight)+5;
-    const endX = (x2 / 100) * displayWidth+12;
-    const endY = (y2 / 100) * displayHeight+5;
-
-    const deltaX = endX - startX;
-    const deltaY = endY - startY;
-    const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-    const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
-
-    line.style.width = `${length}px`;
-    line.style.height = `8px`; // thickness of the path
-    line.style.left = `${startX}px`;
-    line.style.top = `${startY}px`;
-    line.style.transform = `rotate(${angle}deg)`;
-
-    container.appendChild(line);
+// Function to leave a breadcrumb dot at the current position
+function leaveBreadcrumb(x, y) {
+    const container = document.getElementById('path-container'); // Same container as the path lines
+    
+    // Create a new dot element
+    const breadcrumb = document.createElement('div');
+    breadcrumb.classList.add('breadcrumb-dot');
+    
+    // Position the breadcrumb at the specified coordinates
+    breadcrumb.style.left = `${x}%`;
+    breadcrumb.style.top = `${y}%`;
+    
+    // Add it to the container
+    container.appendChild(breadcrumb);
 }
+
+
+
+// function drawPathLine(x1, y1, x2, y2) {
+//     const container = document.getElementById('path-container');
+
+//     const line = document.createElement('div');
+//     line.classList.add('path-line');
+
+//     const displayWidth = labyrinthDisplay.offsetWidth;
+//     const displayHeight = labyrinthDisplay.offsetHeight;
+
+//     // Convert % positions to px
+//     const startX = (x1 / 100) * displayWidth+12;
+//     const startY = ((y1 / 100) * displayHeight)+5;
+//     const endX = (x2 / 100) * displayWidth+12;
+//     const endY = (y2 / 100) * displayHeight+5;
+
+//     const deltaX = endX - startX;
+//     const deltaY = endY - startY;
+//     const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+//     const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+
+//     line.style.width = `${length}px`;
+//     line.style.height = `8px`; // thickness of the path
+//     line.style.left = `${startX}px`;
+//     line.style.top = `${startY}px`;
+//     line.style.transform = `rotate(${angle}deg)`;
+
+//     container.appendChild(line);
+// }
 
 // Progression Bar
 // Add this to your existing game.js file

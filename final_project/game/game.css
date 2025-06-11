@@ -32,6 +32,10 @@ h1 {
     color: #b1efff;
 }
 
+.story-link {
+    color: #b1efff;
+}
+
 main {
     flex: 1;
     display: flex;
@@ -66,10 +70,34 @@ main {
     position: absolute;
     width: 20px;
     height: 20px;
-    background-color: #e74c3c;
+    background-color: rgb(231, 76, 60);
     border-radius: 50%;
     transition: all 0.3s ease;
 }
+
+
+/* Breadcrumb dots - same size as player but less intense color */
+.breadcrumb-dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background-color: rgb(231, 76, 60, 0.5); /* Same red as player but 80% opacity */
+    border-radius: 50%;
+    transition: opacity 0.3s ease;
+}
+
+/* Optional: Add a subtle fade-in animation when breadcrumbs appear */
+.breadcrumb-dot {
+    opacity: 0;
+    animation: fadeInBreadcrumb 0.5s ease forwards;
+}
+
+@keyframes fadeInBreadcrumb {
+    to {
+        opacity: 1;
+    }
+}
+
 
 #path-container {
     position: absolute;
