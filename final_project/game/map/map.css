@@ -186,14 +186,28 @@ main {
     border-radius: 50%;
 }
 
+
+:root {
+    --intro-color: #3498db;
+    --library-color: #8b4513;
+    --garden-color: #27ae60;
+    --forest-color: #228b22;
+    --village-color: #e67e22;
+    --tower-color: #95a5a6;
+    --mirror-color: #9b59b6;
+    --station-color: #34495e;
+    --default-color: #bdc3c7;
+}
+
+
 /* Node type colors */
-.intro-node { background-color: #3498db; }
-.library-node { background-color: #8b4513; }
-.garden-node { background-color: #27ae60; }
-.forest-node { background-color: #228b22; }
-.village-node { background-color: #e67e22; }
-.tower-node { background-color: #95a5a6; }
-.mirror-node { background-color: #9b59b6; }
+.intro-node { background-color: var(--intro-color); }
+.library-node { background-color: var(--library-color); }
+.garden-node { background-color: var(--garden-color); }
+.forest-node { background-color: var(--forest-color); }
+.village-node { background-color: var(--village-color); }
+.tower-node { background-color: var(--tower-color); }
+.mirror-node { background-color: var(--mirror-color); }
 
 .time-distortion {
     background-color: #f39c12;

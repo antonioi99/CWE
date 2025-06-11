@@ -79,9 +79,9 @@ main {
 /* Breadcrumb dots - same size as player but less intense color */
 .breadcrumb-dot {
     position: absolute;
-    width: 16px;
-    height: 16px;
-    background-color: rgb(231, 76, 60, 0.5); /* Same red as player but 80% opacity */
+    width: 15px;
+    height: 15px;
+    background-color: rgb(231, 76, 60, 0.4); /* Same red as player but 80% opacity */
     border-radius: 50%;
     transition: opacity 0.3s ease;
 }
