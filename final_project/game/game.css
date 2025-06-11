@@ -66,6 +66,18 @@ main {
     overflow: hidden;
 }
 
+:root {
+    --intro-color: #3498db;
+    --library-color: #8b4513;
+    --garden-color: #27ae60;
+    --forest-color: #228b22;
+    --village-color: #e67e22;
+    --tower-color: #95a5a6;
+    --mirror-color: #9b59b6;
+    --station-color: #34495e;
+    --default-color: #bdc3c7;
+}
+
 #player {
     position: absolute;
     width: 20px;
@@ -81,7 +93,7 @@ main {
     position: absolute;
     width: 15px;
     height: 15px;
-    background-color: rgb(231, 76, 60, 0.4); /* Same red as player but 40% opacity */
+    background-color: rgba(231, 76, 60, 0.4); /* Same red as player but 0% opacity */
     border-radius: 50%;
     transition: opacity 0.3s ease;
 }
