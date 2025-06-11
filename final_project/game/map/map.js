@@ -1,3 +1,21 @@
+// Function to read colors from CSS custom properties
+function getColorsFromCSS() {
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+    
+    return {
+        intro: computedStyle.getPropertyValue('--intro-color').trim(),
+        library: computedStyle.getPropertyValue('--library-color').trim(),
+        garden: computedStyle.getPropertyValue('--garden-color').trim(),
+        forest: computedStyle.getPropertyValue('--forest-color').trim(),
+        village: computedStyle.getPropertyValue('--village-color').trim(),
+        tower: computedStyle.getPropertyValue('--tower-color').trim(),
+        mirror: computedStyle.getPropertyValue('--mirror-color').trim(),
+        station: computedStyle.getPropertyValue('--station-color').trim(),
+        default: computedStyle.getPropertyValue('--default-color').trim()
+    };
+};
+
 // Story Map Visualization Logic
 class StoryMapVisualizer {
     constructor() {
@@ -19,20 +37,10 @@ class StoryMapVisualizer {
         this.nodeRadius = 25;
         
         // Color scheme for different node types
-        this.colors = {
-            intro: '#3498db',
-            library: '#8b4513',
-            garden: '#27ae60',
-            forest: '#228b22',
-            village: '#e67e22',
-            tower: '#95a5a6',
-            mirror: '#9b59b6',
-            station: '#34495e',
-            default: '#bdc3c7'
-        };
+        this.colors = getColorsFromCSS();
         
         this.init();
-    }
+    }    
     
     init() {
         this.processStoryData();
