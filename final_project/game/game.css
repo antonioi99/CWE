@@ -81,7 +81,7 @@ main {
     position: absolute;
     width: 15px;
     height: 15px;
-    background-color: rgb(231, 76, 60, 0.4); /* Same red as player but 80% opacity */
+    background-color: rgb(231, 76, 60, 0.4); /* Same red as player but 40% opacity */
     border-radius: 50%;
     transition: opacity 0.3s ease;
 }
